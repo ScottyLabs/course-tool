@@ -22,6 +22,8 @@ const initialState = {
       fall: true,
     },
   },
+  schedules: [],
+  activeSchedule: null,
   token: null,
 };
 

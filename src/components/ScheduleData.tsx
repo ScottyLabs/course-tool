@@ -5,7 +5,7 @@ import { displayUnits, roundTo } from "../app/utils";
 import { userSlice } from "../app/user";
 import SmallButton from "./SmallButton";
 
-const BookmarkedData = () => {
+const ScheduleData = () => {
   const dispatch = useAppDispatch();
 
   const loggedIn = useAppSelector((state) => state.user.loggedIn);
@@ -130,4 +130,4 @@ const BookmarkedData = () => {
   );
 };
 
-export default BookmarkedData;
+export default ScheduleData;

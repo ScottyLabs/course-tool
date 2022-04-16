@@ -10,6 +10,7 @@ import {
   LoginIcon,
   LogoutIcon,
   StarIcon,
+  ClockIcon
 } from "@heroicons/react/solid";
 import DarkModeButton from "./DarkModeButton";
 
@@ -114,11 +115,18 @@ export default function Header({ children }): ReactElement {
               </span>
             </Link>
           </div>
-          <div className="flex flex-row space-x-10 text-grey-600 dark:text-grey-100">
+          <div className="flex flex-row space-x-3 md:space-x-10 text-grey-600 dark:text-grey-100">
             <div>
               <Link href="/saved">
                 <span className="flex items-center hover:cursor-pointer">
                   <StarIcon className="mr-1 inline h-4 w-4" /> Saved
+                </span>
+              </Link>
+            </div>
+            <div>
+              <Link href="/schedule">
+                <span className="flex items-center hover:cursor-pointer">
+                  <ClockIcon className="mr-1 inline h-4 w-4" /> Schedules
                 </span>
               </Link>
             </div>
