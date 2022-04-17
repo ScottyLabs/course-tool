@@ -54,7 +54,7 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-white p-8 text-grey-700 drop-shadow-md dark:bg-grey-900 dark:text-grey-100">
+    <>
       <div className="flex">
         <div className="flex-1 text-lg">Course Search</div>
         <div className="mr-6">
@@ -93,7 +93,7 @@ const SearchBar = () => {
       <div className="mt-3 text-grey-500 dark:text-grey-300">
         <AppliedFilters />
       </div>
-    </div>
+    </>
   );
 };
 

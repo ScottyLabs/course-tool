@@ -11,7 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
-    "@headlessui/react": "^1.5.0",
+    "@headlessui/react": "^0.0.0-insiders.b4a4e0b",
     "@heroicons/react": "^1.0.5",
     "@mui/icons-material": "^5.1.1",
     "@mui/material": "^5.0.1",
@@ -19,6 +19,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/mongoose-paginate-v2": "^1.4.0",
     "axios": "^0.24.0",
+    "downshift": "^6.1.7",
     "jose": "^4.6.0",
     "next": "^12.0.7",
     "passlink": "^1.0.0",
@@ -31,6 +32,7 @@
     "react-star-ratings": "^2.3.0",
     "react-string-replace": "^0.4.4",
     "react-table": "^7.7.0",
+    "react-virtual": "^2.10.4",
     "redux-persist": "^6.0.0"
   },
   "devDependencies": {

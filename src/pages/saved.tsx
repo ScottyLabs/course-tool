@@ -4,6 +4,7 @@ import ScheduleData from "../components/ScheduleData";
 import BookmarkedList from "../components/BookmarkedList";
 import Sidebar from "../components/Sidebar";
 import Aggregate from "../components/Aggregate";
+import Topbar from "../components/Topbar";
 
 const SavedPage: NextPage = () => {
   return (
@@ -15,7 +16,9 @@ const SavedPage: NextPage = () => {
           </Sidebar>
         </div>
         <div className="flex-1 overflow-y-scroll dark:bg-grey-800 md:h-full md:pt-16">
-          <ScheduleData />
+          <Topbar>
+            <ScheduleData />
+          </Topbar>
           <BookmarkedList />
         </div>
       </div>

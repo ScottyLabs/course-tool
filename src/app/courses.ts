@@ -12,6 +12,7 @@ const initialState = {
   coursesLoading: false,
   exactResultsActive: false,
   exactResultsLoading: false,
+  allCourses: [],
 };
 
 export const fetchCourseInfos = createAsyncThunk(
@@ -115,6 +116,28 @@ export const fetchFCEInfos = createAsyncThunk(
   }
 );
 
+export const fetchAllCourses = createAsyncThunk(
+  "fetchAllCourses",
+  async (_, thunkAPI) => {
+
+    const url = `${process.env.backendUrl}/courseTool/allCourses`;
+    const state: any = thunkAPI.getState();
+
+    if (state.user.loggedIn) {
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: state.user.token,
+        }),
+      })
+        .then((response) => response.json());
+    }
+  }
+)
+
 export const coursesSlice = createSlice({
   name: "courses",
   initialState,
@@ -178,6 +201,11 @@ export const coursesSlice = createSlice({
         for (const fce of action.payload) {
           state.fces[fce.courseID].push(fce);
         }
+      });
+
+    builder
+      .addCase(fetchAllCourses.fulfilled, (state, action) => {
+        state.allCourses = action.payload;
       });
   },
 });

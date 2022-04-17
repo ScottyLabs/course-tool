@@ -18,12 +18,10 @@ const ScheduleData = () => {
   const options = useAppSelector((state) => state.user.fceAggregation);
 
   if (!loggedIn) {
-    return (
-      <div className="sticky top-0 z-10 bg-white p-8 text-grey-700 drop-shadow-lg dark:bg-grey-900 dark:text-grey-200">
+    return (<>
         <h1 className="text-lg font-semibold">FCE Summary</h1>
         <p>Log in to view FCE results.</p>
-      </div>
-    );
+    </>);
   }
 
   const bookmarkedFCEs = [];
@@ -55,8 +53,7 @@ const ScheduleData = () => {
     else dispatch(userSlice.actions.removeSelected(courseID));
   };
 
-  return (
-    <div className="sticky top-0 z-10 bg-white p-8 text-grey-700 drop-shadow-lg dark:bg-grey-900 dark:text-grey-200">
+  return (<>
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-lg font-semibold">FCE Summary</h1>
@@ -126,7 +123,7 @@ const ScheduleData = () => {
       <div className="mt-2 text-sm text-grey-400 dark:text-grey-300">
         {message === "" ? "" : `*${message}`}
       </div>
-    </div>
+    </>
   );
 };
 
