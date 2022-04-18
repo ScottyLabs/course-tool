@@ -1,44 +1,53 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { aggregateCourses } from "../app/fce";
 import { displayUnits, roundTo } from "../app/utils";
 import { userSlice } from "../app/user";
 import SmallButton from "./SmallButton";
+import { fetchCourseInfos, fetchFCEInfos } from "../app/courses";
 
-const ScheduleData = () => {
+const ScheduleData = ({ scheduled }) => {
   const dispatch = useAppDispatch();
-
   const loggedIn = useAppSelector((state) => state.user.loggedIn);
-  const bookmarked = useAppSelector((state) => state.user.bookmarked);
-  const selected = useAppSelector((state) => state.user.bookmarkedSelected);
-  const bookmarkedResults = useAppSelector(
+  // const scheduled = useAppSelector((state) => state.user.bookmarked);
+  const selected = useAppSelector((state) => state.user.schedules.selected);
+  const scheduledResults = useAppSelector(
     (state) => state.courses.exactResults
   );
   const FCEs = useAppSelector((state) => state.courses.fces);
   const options = useAppSelector((state) => state.user.fceAggregation);
 
   if (!loggedIn) {
-    return (<>
+    return (
+      <>
         <h1 className="text-lg font-semibold">FCE Summary</h1>
         <p>Log in to view FCE results.</p>
-    </>);
+      </>
+    );
   }
 
-  const bookmarkedFCEs = [];
+  useEffect(() => {
+    if (scheduled) {
+      dispatch(fetchCourseInfos(scheduled));
+      if (loggedIn) dispatch(fetchFCEInfos({ courseIDs: scheduled }));
+    }
+  }, [scheduled, loggedIn]);
 
-  for (const courseID of bookmarked) {
+  const scheduledFCEs = [];
+
+  for (const courseID of scheduled) {
     if (courseID in FCEs) {
-      bookmarkedFCEs.push({ courseID, fces: FCEs[courseID] });
+      scheduledFCEs.push({ courseID, fces: FCEs[courseID] });
     } else {
-      bookmarkedFCEs.push({ courseID, fces: null });
+      scheduledFCEs.push({ courseID, fces: null });
     }
   }
 
-  const selectedFCEs = bookmarkedFCEs.filter(({ courseID }) =>
+  const selectedFCEs = scheduledFCEs.filter(({ courseID }) =>
     selected.includes(courseID)
   );
 
-  const aggregatedData = aggregateCourses(bookmarkedFCEs, options);
+  const aggregatedData = aggregateCourses(scheduledFCEs, options);
   const aggregatedDataByCourseID = {};
   for (const row of aggregatedData.aggregatedFCEs) {
     if (row.aggregateData !== null)
@@ -53,7 +62,8 @@ const ScheduleData = () => {
     else dispatch(userSlice.actions.removeSelected(courseID));
   };
 
-  return (<>
+  return (
+    <>
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-lg font-semibold">FCE Summary</h1>
@@ -74,13 +84,13 @@ const ScheduleData = () => {
         >
           Toggle Select
         </SmallButton>
-        <SmallButton
-          onClick={() => {
-            dispatch(userSlice.actions.clearBookmarks());
-          }}
-        >
-          Clear Saved
-        </SmallButton>
+        {/*<SmallButton*/}
+        {/*  onClick={() => {*/}
+        {/*    dispatch(userSlice.actions.clearBookmarks());*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  Clear Saved*/}
+        {/*</SmallButton>*/}
       </div>
       <table className="mt-3 w-full table-auto">
         <thead>
@@ -93,8 +103,8 @@ const ScheduleData = () => {
           </tr>
         </thead>
         <tbody className="text-grey-500 dark:text-grey-300">
-          {bookmarkedResults &&
-            bookmarkedResults.map((result) => {
+          {scheduledResults &&
+            scheduledResults.map((result) => {
               return (
                 <tr>
                   <td>

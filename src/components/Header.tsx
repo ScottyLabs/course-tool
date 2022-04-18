@@ -10,11 +10,11 @@ import {
   LoginIcon,
   LogoutIcon,
   StarIcon,
-  ClockIcon
+  ClockIcon,
 } from "@heroicons/react/solid";
 import DarkModeButton from "./DarkModeButton";
 
-const BASE_URL = process.env.NEXT_PUBLIC_REACT_APP_API_URL;
+const BASE_URL = process.env.backendUrl;
 
 export default function Header({ children }): ReactElement {
   const dispatch = useAppDispatch();
@@ -115,7 +115,7 @@ export default function Header({ children }): ReactElement {
               </span>
             </Link>
           </div>
-          <div className="flex flex-row space-x-3 md:space-x-10 text-grey-600 dark:text-grey-100">
+          <div className="flex flex-row space-x-3 text-grey-600 dark:text-grey-100 md:space-x-10">
             <div>
               <Link href="/saved">
                 <span className="flex items-center hover:cursor-pointer">

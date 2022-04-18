@@ -4,10 +4,12 @@ import Sidebar from "../../components/Sidebar";
 import Aggregate from "../../components/Aggregate";
 import ScheduleData from "../../components/ScheduleData";
 import BookmarkedList from "../../components/BookmarkedList";
-import React from "react";
+import React, { useEffect } from "react";
 import { SEMESTERS_COUNTED } from "../../app/constants";
 import Topbar from "../../components/Topbar";
 import ScheduleSearch from "../../components/ScheduleSearch";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { fetchCourseInfos, fetchFCEInfos } from "../../app/courses";
 
 const SchedulePage: NextPage = () => {
   const router = useRouter();
@@ -16,6 +18,8 @@ const SchedulePage: NextPage = () => {
   let courseIDs = typeof schedule === "string" ? [schedule] : schedule;
   if (!courseIDs) courseIDs = [];
   console.log(courseIDs);
+
+  const scheduled = useAppSelector((state) => state.user.schedules.current);
 
   return (<div className="font-sans">
     <div className="flex flex-col md:h-screen md:flex-row">
@@ -34,7 +38,7 @@ const SchedulePage: NextPage = () => {
         <Topbar>
           <h1 className="text-lg font-semibold">Schedule Explorer</h1>
           <ScheduleSearch />
-          <ScheduleData />
+          <ScheduleData scheduled={scheduled} />
         </Topbar>
         {/*<BookmarkedList />*/}
       </div>

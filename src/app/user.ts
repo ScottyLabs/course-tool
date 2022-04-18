@@ -2,10 +2,39 @@ import { createSlice } from "@reduxjs/toolkit";
 import { standardizeIdsInString } from "./utils";
 import { SEMESTERS_COUNTED } from "./constants";
 
-const initialState = {
+export interface UserState {
+  bookmarked: string[],
+  bookmarkedSelected: string[]
+  darkMode: boolean,
+  showFCEs: boolean,
+  showCourseInfos: boolean,
+  loggedIn: boolean,
+  filter: {
+    search: string,
+    departments: string[],
+    exactMatchesOnly: boolean,
+  },
+  fceAggregation: {
+    numSemesters: number,
+    counted: {
+      spring: boolean,
+      summer: boolean,
+      fall: boolean,
+    }
+  },
+  schedules: {
+    activeId: number,
+    saved: string[],
+    current: string[],
+    selected: string[]
+  },
+  token: string
+}
+
+const initialState: UserState = {
   bookmarked: [],
-  darkMode: false,
   bookmarkedSelected: [],
+  darkMode: false,
   showFCEs: false,
   showCourseInfos: true,
   loggedIn: false,
@@ -26,6 +55,7 @@ const initialState = {
     activeId: null,
     saved: [],
     current: [],
+    selected: [],
   },
   token: null,
 };
@@ -115,6 +145,26 @@ export const userSlice = createSlice({
     setToken: (state, action) => {
       state.token = action.payload;
     },
+    updateCurrentSchedule: (state, action) => {
+      state.schedules.current = [...action.payload];
+    },
+    addToCurrentSchedule: (state, action) => {
+      if (!state.schedules.current.includes(action.payload)) {
+        state.schedules.current.push(action.payload);
+        state.schedules.selected.push(action.payload);
+      }
+    },
+    removeFromCurrentSchedule: (state, action) => {
+      const currentScheduleIndex = state.schedules.current.indexOf(action.payload);
+      if (currentScheduleIndex > -1) {
+        state.schedules.current.splice(currentScheduleIndex, 1);
+      }
+
+      const selectedScheduleIndex = state.schedules.selected.indexOf(action.payload);
+      if (selectedScheduleIndex > -1) {
+        state.schedules.selected.splice(selectedScheduleIndex, 1);
+      }
+    }
   },
   extraReducers: (builder) => {},
 });
