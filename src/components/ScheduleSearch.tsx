@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useVirtual } from "react-virtual";
 import { useCombobox, useMultipleSelection } from "downshift";
 import { SearchIcon } from "@heroicons/react/solid";
@@ -12,30 +6,14 @@ import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfig from "../../tailwind.config.js";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { userSlice } from "../app/user";
-import { coursesSlice, fetchAllCourses } from "../app/courses";
+import { fetchAllCourses, fetchCourseInfos, fetchFCEInfos } from "../app/courses";
 
 const fullConfig = resolveConfig(tailwindConfig);
 
-// Testing
-const courses = [
-  { name: "Test 1", courseID: "15-122" },
-  { name: "Test 2", courseID: "15-112" },
-  { name: "Test 3", courseID: "17-232" },
-  { name: "Test 4", courseID: "18-123" },
-];
-
-const CourseCombobox = ({ onSelectedItemsChange, onItemAdd, onItemRemove }) => {
+const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
   const [inputValue, setInputValue] = useState("");
   const listRef = useRef();
   const dispatch = useAppDispatch();
-
-  const {
-    getSelectedItemProps,
-    getDropdownProps,
-    addSelectedItem,
-    removeSelectedItem,
-    selectedItems,
-  } = useMultipleSelection({ initialSelectedItems: [] });
 
   const allCourses = useAppSelector((state) => state.courses.allCourses);
 
@@ -54,8 +32,22 @@ const CourseCombobox = ({ onSelectedItemsChange, onItemAdd, onItemRemove }) => {
   }
 
   useEffect(() => {
-    onSelectedItemsChange(selectedItems);
-  }, [selectedItems]);
+    setSelectedItems(
+      initialSchedule.map((courseID) => ({ courseID, name: "" }))
+    );
+  }, [initialSchedule]);
+
+  const {
+    getSelectedItemProps,
+    getDropdownProps,
+    addSelectedItem,
+    removeSelectedItem,
+    setSelectedItems,
+    selectedItems,
+  } = useMultipleSelection({
+    initialSelectedItems: [],
+    onSelectedItemsChange,
+  });
 
   const filteredCourses = getCourses();
 
@@ -111,7 +103,9 @@ const CourseCombobox = ({ onSelectedItemsChange, onItemAdd, onItemRemove }) => {
           if (selectedItem) {
             setInputValue("");
             addSelectedItem(selectedItem);
-            if (onItemAdd) onItemAdd(selectedItem);
+            dispatch(
+              userSlice.actions.addToCurrentSchedule(selectedItem.courseID)
+            );
           }
           break;
         default:
@@ -120,7 +114,6 @@ const CourseCombobox = ({ onSelectedItemsChange, onItemAdd, onItemRemove }) => {
     },
   });
 
-  // @ts-ignore
   return (
     <div>
       <div>
@@ -140,7 +133,11 @@ const CourseCombobox = ({ onSelectedItemsChange, onItemAdd, onItemRemove }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   removeSelectedItem(selectedItem);
-                  if (onItemRemove) onItemRemove(selectedItem);
+                  dispatch(
+                    userSlice.actions.removeFromCurrentSchedule(
+                      selectedItem.courseID
+                    )
+                  );
                 }}
               >
                 &#10005;
@@ -212,36 +209,25 @@ const CourseCombobox = ({ onSelectedItemsChange, onItemAdd, onItemRemove }) => {
               )}
             </ul>
           </div>
-          {/*<button {...getToggleButtonProps()} aria-label={"toggle menu"}>*/}
-          {/*  &#8595;*/}
-          {/*</button>*/}
         </div>
       </div>
     </div>
   );
 };
 
-const ScheduleSearch = () => {
+const ScheduleSearch = ({ initialSchedule }) => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="mb-5">
+    <div className="mb-6">
       <div className="flex flex-col">
         <CourseCombobox
-          onSelectedItemsChange={(selectedItems) => {
-            console.log(selectedItems.map(({ courseID }) => courseID));
-            dispatch(
-              userSlice.actions.updateCurrentSchedule(
-                selectedItems.map(({ courseID }) => courseID)
-              )
-            );
+          onSelectedItemsChange={({ selectedItems }) => {
+            const courseIDs = selectedItems.map(({ courseID }) => courseID);
+            dispatch(fetchFCEInfos({ courseIDs }));
+            dispatch(fetchCourseInfos(courseIDs));
           }}
-          onItemAdd={({ courseID }) =>
-            dispatch(userSlice.actions.addToCurrentSchedule(courseID))
-          }
-          onItemRemove={({ courseID }) =>
-            dispatch(userSlice.actions.removeFromCurrentSchedule(courseID))
-          }
+          initialSchedule={initialSchedule}
         />
       </div>
     </div>

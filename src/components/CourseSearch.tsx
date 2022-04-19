@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import CourseList from "./CourseList";
+import CourseSearchList from "./CourseSearchList";
 import SearchBar from "./SearchBar";
 import Filter from "./Filter";
 import Aggregate from "./Aggregate";
@@ -22,7 +22,7 @@ export default function CourseSearch({}: Props): ReactElement {
           <Topbar>
             <SearchBar />
           </Topbar>
-          <CourseList />
+          <CourseSearchList />
         </div>
       </div>
     </div>

@@ -175,3 +175,15 @@ export function isExactSearch(search: string): boolean {
 export function getCourseIds(search: string): string[] {
   return search.match(courseIdRegex);
 }
+
+export function removeFromSet(arr, item) {
+  return arr.filter((x) => x !== item);
+}
+
+export function addToSet(arr, item) {
+  if (arr.indexOf(item) === -1) {
+    return [...arr, item];
+  } else {
+    return arr;
+  }
+}

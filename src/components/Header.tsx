@@ -5,13 +5,7 @@ import Image from "next/image";
 import Passlink from "passlink";
 import * as jose from "jose";
 import { userSlice } from "../app/user";
-import {
-  AnnotationIcon,
-  LoginIcon,
-  LogoutIcon,
-  StarIcon,
-  ClockIcon,
-} from "@heroicons/react/solid";
+import { AnnotationIcon, ClockIcon, LoginIcon, LogoutIcon, StarIcon } from "@heroicons/react/solid";
 import DarkModeButton from "./DarkModeButton";
 
 const BASE_URL = process.env.backendUrl;
@@ -52,8 +46,13 @@ export default function Header({ children }): ReactElement {
   useEffect(() => {
     try {
       const userDecode = jose.decodeJwt(token);
-      setUser(userDecode);
-      dispatch(userSlice.actions.logIn());
+      if (Date.now().valueOf() / 1000 > userDecode.exp) {
+        setUser(null);
+        dispatch(userSlice.actions.logOut());
+      } else {
+        setUser(userDecode);
+        dispatch(userSlice.actions.logIn());
+      }
     } catch {
       setUser(null);
       dispatch(userSlice.actions.logOut());

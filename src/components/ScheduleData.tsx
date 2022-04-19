@@ -1,48 +1,32 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { aggregateCourses } from "../app/fce";
 import { displayUnits, roundTo } from "../app/utils";
 import { userSlice } from "../app/user";
 import SmallButton from "./SmallButton";
-import { fetchCourseInfos, fetchFCEInfos } from "../app/courses";
+import { selectCourseResults, selectFCEResultsForCourses } from "../app/courses";
 
 const ScheduleData = ({ scheduled }) => {
   const dispatch = useAppDispatch();
+
   const loggedIn = useAppSelector((state) => state.user.loggedIn);
-  // const scheduled = useAppSelector((state) => state.user.bookmarked);
   const selected = useAppSelector((state) => state.user.schedules.selected);
-  const scheduledResults = useAppSelector(
-    (state) => state.courses.exactResults
-  );
-  const FCEs = useAppSelector((state) => state.courses.fces);
+  const scheduledResults = useAppSelector(selectCourseResults(scheduled));
+
   const options = useAppSelector((state) => state.user.fceAggregation);
 
   if (!loggedIn) {
     return (
-      <>
+      <div className="sticky top-0 z-10 bg-white p-8 text-grey-700 drop-shadow-lg dark:bg-grey-900 dark:text-grey-200">
         <h1 className="text-lg font-semibold">FCE Summary</h1>
         <p>Log in to view FCE results.</p>
-      </>
+      </div>
     );
   }
 
-  useEffect(() => {
-    if (scheduled) {
-      dispatch(fetchCourseInfos(scheduled));
-      if (loggedIn) dispatch(fetchFCEInfos({ courseIDs: scheduled }));
-    }
-  }, [scheduled, loggedIn]);
-
-  const scheduledFCEs = [];
-
-  for (const courseID of scheduled) {
-    if (courseID in FCEs) {
-      scheduledFCEs.push({ courseID, fces: FCEs[courseID] });
-    } else {
-      scheduledFCEs.push({ courseID, fces: null });
-    }
-  }
-
+  const scheduledFCEs = useAppSelector(
+    selectFCEResultsForCourses(scheduled || [])
+  );
   const selectedFCEs = scheduledFCEs.filter(({ courseID }) =>
     selected.includes(courseID)
   );
@@ -58,8 +42,8 @@ const ScheduleData = ({ scheduled }) => {
   const message = aggregatedSelectedData.message;
 
   const selectCourse = (value, courseID) => {
-    if (value) dispatch(userSlice.actions.addSelected(courseID));
-    else dispatch(userSlice.actions.removeSelected(courseID));
+    if (value) dispatch(userSlice.actions.addScheduleSelected(courseID));
+    else dispatch(userSlice.actions.removeScheduleSelected(courseID));
   };
 
   return (

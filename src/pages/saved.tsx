@@ -1,12 +1,13 @@
 import type { NextPage } from "next";
 import React from "react";
-import ScheduleData from "../components/ScheduleData";
-import BookmarkedList from "../components/BookmarkedList";
+import CourseList from "../components/CourseList";
 import Sidebar from "../components/Sidebar";
 import Aggregate from "../components/Aggregate";
-import Topbar from "../components/Topbar";
+import { useAppSelector } from "../app/hooks";
 
 const SavedPage: NextPage = () => {
+  const saved = useAppSelector((state) => state.user.bookmarked);
+
   return (
     <div className="font-sans accent-purple-600">
       <div className="flex flex-col md:h-screen md:flex-row">
@@ -16,10 +17,11 @@ const SavedPage: NextPage = () => {
           </Sidebar>
         </div>
         <div className="flex-1 overflow-y-scroll dark:bg-grey-800 md:h-full md:pt-16">
-          {/*<Topbar>*/}
-          {/*  <ScheduleData />*/}
-          {/*</Topbar>*/}
-          <BookmarkedList />
+          <CourseList courseIDs={saved}>
+            <div className="text-center font-semibold text-grey-500">
+              Nothing bookmarked yet!
+            </div>
+          </CourseList>
         </div>
       </div>
     </div>

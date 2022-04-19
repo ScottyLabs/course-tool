@@ -1,37 +1,50 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+interface CoursesState {
+  totalDocs: number;
+  totalPages: number;
+  page: number;
+  pageCourses: string[];
+  courseResults: { [courseID: string]: any };
+  scheduleResults: { [courseID: string]: any };
+  fces: { [courseID: string]: any };
+  fcesLoading: boolean;
+  coursesLoading: boolean;
+  exactResultsCourses: string[];
+  allCourses: { courseID: string; name: string }[];
+}
+
+const initialState: CoursesState = {
   totalDocs: 0,
   totalPages: 0,
   page: 1,
-  results: [],
-  exactResults: [],
-  bookmarkedResults: [],
+  pageCourses: [],
+  courseResults: {},
+  scheduleResults: {},
   fces: {},
   fcesLoading: false,
   coursesLoading: false,
-  exactResultsActive: false,
-  exactResultsLoading: false,
+  exactResultsCourses: [],
   allCourses: [],
 };
 
 export const fetchCourseInfos = createAsyncThunk(
   "fetchCourseInfos",
-  async (ids: String[], thunkAPI) => {
-    console.log("fetching ", ids);
+  async (ids: string[], thunkAPI) => {
     const state: any = thunkAPI.getState();
 
-    if (ids.length === 0) return [];
+    const newIds = ids.filter((id) => !(id in state.courses.courseResults));
+    if (newIds.length === 0) return [];
 
-    let url = `${process.env.backendUrl}/courseTool/courses/?`;
+    const url = `${process.env.backendUrl}/courseTool/courses/?`;
+    const params = new URLSearchParams(newIds.map((id) => ["courseID", id]));
 
-    url += ids.map((d) => `courseID=${d}`).join("&");
-
-    url += "&schedulesAvailable=true";
+    params.set("schedulesAvailable", "true");
 
     if (state.user.loggedIn) {
-      url += `&fces=true`;
-      return fetch(url, {
+      params.set("fces", "true");
+
+      return fetch(url + params.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,13 +52,9 @@ export const fetchCourseInfos = createAsyncThunk(
         body: JSON.stringify({
           token: state.user.token,
         }),
-      })
-        .then((response) => response.json())
-        .then((data) =>
-          data.sort((a, b) => ids.indexOf(a.courseID) > ids.indexOf(b.courseID))
-        );
+      }).then((response) => response.json());
     } else {
-      return fetch(url).then((response) => response.json());
+      return fetch(url + params.toString()).then((response) => response.json());
     }
   }
 );
@@ -56,21 +65,24 @@ export const fetchCourseInfosByPage = createAsyncThunk(
     console.log("fetching");
     const state: any = thunkAPI.getState();
 
-    let url = `${process.env.backendUrl}/courseTool/?page=${page}&schedulesAvailable=true`;
+    const url = `${process.env.backendUrl}/courseTool/?`;
+    const params = new URLSearchParams({
+      page: `${page}`,
+      schedulesAvailable: "true",
+    });
 
     if (state.user.filter.search !== "") {
-      url += `&keywords=${state.user.filter.search}`;
+      params.set("keywords", state.user.filter.search);
     }
 
     if (state.user.filter.departments.length > 0) {
-      url += state.user.filter.departments
-        .map((d) => `&department=${d}`)
-        .join("");
+      state.user.filter.departments.forEach((d) =>
+        params.append("department", d)
+      );
     }
 
     if (state.user.loggedIn) {
-      // url += `&fces=true`;
-      return fetch(url, {
+      return fetch(url + params.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,30 +92,52 @@ export const fetchCourseInfosByPage = createAsyncThunk(
         }),
       }).then((response) => response.json());
     } else {
-      return fetch(url).then((response) => response.json());
+      return fetch(url + params.toString()).then((response) => response.json());
     }
   }
 );
 
-export const fetchCourseInfo = async ({ courseID, schedules }: any) => {
-  if (!courseID) return;
-  let url = `${process.env.backendUrl}/courseTool/courseID/${courseID}?`;
-  if (schedules) url += `schedules=${schedules}`;
+export const fetchCourseInfo = createAsyncThunk(
+  "fetchCourseInfo",
+  async (
+    {
+      courseID,
+      schedules,
+    }: {
+      courseID: string;
+      schedules: boolean;
+    },
+    thunkAPI
+  ) => {
+    if (!courseID) return;
 
-  return fetch(url).then((response) => response.json());
-};
+    const state: any = thunkAPI.getState();
+    if (courseID in state.courses.courseResults && !schedules) return;
+
+    const url = `${process.env.backendUrl}/courseTool/courseID/${courseID}?`;
+    const params = new URLSearchParams({
+      schedules: `${schedules}`,
+    });
+
+    return fetch(url + params.toString()).then((response) => response.json());
+  }
+);
 
 export const fetchFCEInfos = createAsyncThunk(
   "fetchFCEInfos",
-  async ({ courseIDs }: any, thunkAPI) => {
-    if (!courseIDs || courseIDs.length === 0) return;
-
+  async ({ courseIDs }: { courseIDs: string[] }, thunkAPI) => {
     const state: any = thunkAPI.getState();
-    let url = `${process.env.backendUrl}/fces/?`;
-    url += courseIDs.map((courseID) => `courseID=${courseID}`).join("&");
+
+    const newIds = courseIDs.filter((id) => !(id in state.courses.fces));
+    if (newIds.length === 0) return;
+
+    const url = `${process.env.backendUrl}/fces/?`;
+    const params = new URLSearchParams();
+
+    newIds.forEach((courseID) => params.append("courseID", courseID));
 
     if (state.user.loggedIn && state.user.token) {
-      return fetch(url, {
+      return fetch(url + params.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,9 +153,10 @@ export const fetchFCEInfos = createAsyncThunk(
 export const fetchAllCourses = createAsyncThunk(
   "fetchAllCourses",
   async (_, thunkAPI) => {
-
     const url = `${process.env.backendUrl}/courseTool/allCourses`;
     const state: any = thunkAPI.getState();
+
+    if (state.courses.allCourses.length > 0) return;
 
     if (state.user.loggedIn) {
       return fetch(url, {
@@ -132,11 +167,30 @@ export const fetchAllCourses = createAsyncThunk(
         body: JSON.stringify({
           token: state.user.token,
         }),
-      })
-        .then((response) => response.json());
+      }).then((response) => response.json());
     }
   }
-)
+);
+
+export const selectCourseResults = (courseIDs: string[]) => (state) =>
+  courseIDs
+    .filter((courseID) => courseID in state.courses.courseResults)
+    .map((courseID) => state.courses.courseResults[courseID]);
+
+export const selectCourseResult = (courseID: string) => (state) =>
+  state.courses.courseResults[courseID];
+
+export const selectFCEResultsForCourses = (courseIDs: string[]) => (state) =>
+  courseIDs.map((courseID) => {
+    if (!state.courses.fces[courseID]) return { courseID, fces: null };
+    return { courseID, fces: state.courses.fces[courseID] };
+  });
+
+export const selectFCEResultsForCourse = (courseID: string) => (state) =>
+  state.courses.fces[courseID];
+
+export const selectScheduleForCourse = (courseID: string) => (state) =>
+  state.courses.scheduleResults[courseID];
 
 export const coursesSlice = createSlice({
   name: "courses",
@@ -144,11 +198,10 @@ export const coursesSlice = createSlice({
   reducers: {
     clearData: (state) => {
       state.fces = {};
-      state.results = [];
-      state.bookmarkedResults = [];
+      state.courseResults = {};
     },
-    setExactResultsActive: (state, action) => {
-      state.exactResultsActive = action.payload;
+    setExactResultsCourses: (state, action) => {
+      state.exactResultsCourses = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -163,20 +216,45 @@ export const coursesSlice = createSlice({
           state.totalDocs = action.payload.totalDocs;
           state.totalPages = action.payload.totalPages;
           state.page = action.payload.page;
-          state.results = action.payload.docs;
+          state.pageCourses = [];
+
+          for (const result of action.payload.docs) {
+            state.pageCourses.push(result.courseID);
+            state.courseResults[result.courseID] = result;
+          }
+
           state.coursesLoading = false;
         }
       );
 
     builder
       .addCase(fetchCourseInfos.pending, (state) => {
-        state.exactResultsLoading = true;
+        state.coursesLoading = true;
       })
       .addCase(
         fetchCourseInfos.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.exactResults = action.payload;
-          state.exactResultsLoading = false;
+          for (const result of action.payload) {
+            state.courseResults[result.courseID] = result;
+          }
+          state.coursesLoading = false;
+        }
+      );
+
+    builder
+      .addCase(fetchCourseInfo.pending, (state) => {
+        state.coursesLoading = true;
+      })
+      .addCase(
+        fetchCourseInfo.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.courseResults[action.payload.courseID] = action.payload;
+          state.coursesLoading = false;
+
+          if (action.payload.schedules) {
+            state.scheduleResults[action.payload.courseID] =
+              action.payload.schedules;
+          }
         }
       );
 
@@ -203,10 +281,9 @@ export const coursesSlice = createSlice({
         }
       });
 
-    builder
-      .addCase(fetchAllCourses.fulfilled, (state, action) => {
-        state.allCourses = action.payload;
-      });
+    builder.addCase(fetchAllCourses.fulfilled, (state, action) => {
+      if (action.payload) state.allCourses = action.payload;
+    });
   },
 });
 
