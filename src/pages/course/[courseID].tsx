@@ -1,7 +1,11 @@
 import React, { useEffect } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { fetchCourseInfo, selectCourseResult, selectScheduleForCourse } from "../../app/courses";
+import {
+  fetchCourseInfo,
+  selectCourseResult,
+  selectScheduleForCourse,
+} from "../../app/courses";
 import CourseDetail from "../../components/CourseDetail";
 import { CircularProgress } from "@mui/material";
 import Sidebar from "../../components/Sidebar";

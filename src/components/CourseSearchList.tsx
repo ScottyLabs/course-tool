@@ -2,7 +2,11 @@ import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import CourseCard from "./CourseCard";
 import { Pagination } from "react-headless-pagination";
-import { fetchCourseInfosByPage, fetchFCEInfos, selectCourseResults } from "../app/courses";
+import {
+  fetchCourseInfosByPage,
+  fetchFCEInfos,
+  selectCourseResults,
+} from "../app/courses";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import Loading from "./Loading";
 

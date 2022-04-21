@@ -1,7 +1,11 @@
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import CourseCard from "./CourseCard";
-import { fetchCourseInfos, fetchFCEInfos, selectCourseResults } from "../app/courses";
+import {
+  fetchCourseInfos,
+  fetchFCEInfos,
+  selectCourseResults,
+} from "../app/courses";
 import Loading from "./Loading";
 
 interface Props {

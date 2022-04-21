@@ -2,7 +2,12 @@ import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { fetchFCEInfos } from "../app/courses";
 import { Tab } from "@headlessui/react";
-import { compareSessions, filterSessions, sessionToString, timeArrToString } from "../app/utils";
+import {
+  compareSessions,
+  filterSessions,
+  sessionToString,
+  timeArrToString,
+} from "../app/utils";
 import { FCECard } from "./FCEDetail";
 import CourseCard from "./CourseCard";
 

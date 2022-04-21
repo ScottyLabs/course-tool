@@ -6,11 +6,16 @@ import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfig from "../../tailwind.config.js";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { userSlice } from "../app/user";
-import { fetchAllCourses, fetchCourseInfos, fetchFCEInfos } from "../app/courses";
+import {
+  fetchAllCourses,
+  fetchCourseInfos,
+  fetchFCEInfos,
+} from "../app/courses";
+import { PencilAltIcon } from "@heroicons/react/solid";
 
 const fullConfig = resolveConfig(tailwindConfig);
 
-const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
+const CourseCombobox = ({ onSelectedItemsChange }) => {
   const [inputValue, setInputValue] = useState("");
   const listRef = useRef();
   const dispatch = useAppDispatch();
@@ -31,11 +36,10 @@ const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
     );
   }
 
+  const scheduled = useAppSelector((state) => state.user.schedules.current);
   useEffect(() => {
-    setSelectedItems(
-      initialSchedule.map((courseID) => ({ courseID, name: "" }))
-    );
-  }, [initialSchedule]);
+    setSelectedItems(scheduled.map((courseID) => ({ courseID, name: "" })));
+  }, [scheduled.join(" ")]);
 
   const {
     getSelectedItemProps,
@@ -43,6 +47,7 @@ const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
     addSelectedItem,
     removeSelectedItem,
     setSelectedItems,
+    activeIndex,
     selectedItems,
   } = useMultipleSelection({
     initialSelectedItems: [],
@@ -65,7 +70,6 @@ const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
     highlightedIndex,
     selectedItem,
     getComboboxProps,
-    getToggleButtonProps,
     isOpen,
   } = useCombobox({
     items: filteredCourses,
@@ -124,7 +128,9 @@ const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
           {selectedItems.map((selectedItem, index) => (
             <div
               key={`selected-item-${index}`}
-              className="mr-2 rounded-md bg-blue-50 px-2 py-1 text-blue-800"
+              className={`mr-2 rounded-md bg-blue-50 px-2 py-1 text-blue-800 ${
+                activeIndex === index ? "border-blue-800" : "border-blue-50"
+              } border-2`}
               {...getSelectedItemProps({ selectedItem, index })}
             >
               {selectedItem.courseID}
@@ -133,11 +139,6 @@ const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   removeSelectedItem(selectedItem);
-                  dispatch(
-                    userSlice.actions.removeFromCurrentSchedule(
-                      selectedItem.courseID
-                    )
-                  );
                 }}
               >
                 &#10005;
@@ -215,19 +216,36 @@ const CourseCombobox = ({ onSelectedItemsChange, initialSchedule }) => {
   );
 };
 
-const ScheduleSearch = ({ initialSchedule }) => {
+const ScheduleSearch = () => {
   const dispatch = useAppDispatch();
+  const savedSchedules = useAppSelector((state) => state.user.schedules.saved);
+  const active = useAppSelector((state) => state.user.schedules.active);
 
   return (
     <div className="mb-6">
       <div className="flex flex-col">
+        {active !== null && (
+          <div className="flex items-center">
+            <PencilAltIcon className="mr-2 h-4 w-4" />
+            <input
+              value={savedSchedules[active].name}
+              onChange={(e) =>
+                dispatch(
+                  userSlice.actions.updateActiveScheduleName(e.target.value)
+                )
+              }
+              placeholder="Schedule Name"
+            />
+          </div>
+        )}
+
         <CourseCombobox
           onSelectedItemsChange={({ selectedItems }) => {
             const courseIDs = selectedItems.map(({ courseID }) => courseID);
             dispatch(fetchFCEInfos({ courseIDs }));
             dispatch(fetchCourseInfos(courseIDs));
+            dispatch(userSlice.actions.updateCurrentSchedule(courseIDs));
           }}
-          initialSchedule={initialSchedule}
         />
       </div>
     </div>

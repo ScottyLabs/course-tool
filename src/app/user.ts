@@ -22,8 +22,8 @@ export interface UserState {
     };
   };
   schedules: {
-    activeId: number;
-    saved: string[];
+    active: number;
+    saved: { name: string; courses: string[] }[];
     current: string[];
     selected: string[];
   };
@@ -50,7 +50,7 @@ const initialState: UserState = {
     },
   },
   schedules: {
-    activeId: null,
+    active: null,
     saved: [],
     current: [],
     selected: [],
@@ -136,6 +136,11 @@ export const userSlice = createSlice({
     },
     updateCurrentSchedule: (state, action) => {
       state.schedules.current = [...action.payload];
+      if (state.schedules.active !== null) {
+        state.schedules.saved[state.schedules.active].courses = [
+          ...action.payload,
+        ];
+      }
     },
     addToCurrentSchedule: (state, action) => {
       if (!state.schedules.current.includes(action.payload)) {
@@ -152,6 +157,72 @@ export const userSlice = createSlice({
         state.schedules.selected,
         action.payload
       );
+    },
+    saveSchedule: (state) => {
+      if (state.schedules.active === null) {
+        state.schedules.saved.push({
+          name: "My Schedule",
+          courses: [...state.schedules.current],
+        });
+      } else {
+        state.schedules.saved[state.schedules.active].courses = [
+          ...state.schedules.current,
+        ];
+      }
+    },
+    createEmptySchedule: (state) => {
+      state.schedules.saved.push({
+        name: "My Schedule",
+        courses: [],
+      });
+      state.schedules.active = state.schedules.saved.length - 1;
+    },
+    createSharedSchedule: (state, action) => {
+      state.schedules.saved.push({
+        name: "Shared Schedule",
+        courses: action.payload.courses,
+      });
+      state.schedules.active = state.schedules.saved.length - 1;
+    },
+    createSchedule: (state) => {
+      if (state.schedules.active === null) {
+        state.schedules.saved.push({
+          name: "My Schedule",
+          courses: [...state.schedules.current],
+        });
+      } else {
+        state.schedules.saved.push({
+          name: "My Schedule",
+          courses: [],
+        });
+      }
+      state.schedules.active = state.schedules.saved.length - 1;
+    },
+    selectSchedule: (state, action) => {
+      if (action.payload < 0) return;
+      state.schedules.active = action.payload;
+      state.schedules.current =
+        state.schedules.saved[state.schedules.active].courses;
+      state.schedules.selected = [...state.schedules.current];
+    },
+    deleteSchedule: (state, action) => {
+      state.schedules.saved.splice(action.payload, 1);
+      if (state.schedules.saved.length === 0) {
+        state.schedules.active = null;
+        state.schedules.current = [];
+        state.schedules.selected = [];
+      } else {
+        if (state.schedules.active >= state.schedules.saved.length) {
+          state.schedules.active -= 1;
+        } else if (state.schedules.active < 0) {
+          state.schedules.active = 0;
+        }
+      }
+    },
+    updateActiveScheduleName: (state, action) => {
+      if (state.schedules.active !== null) {
+        state.schedules.saved[state.schedules.active].name = action.payload;
+      }
     },
   },
   extraReducers: (builder) => {},
