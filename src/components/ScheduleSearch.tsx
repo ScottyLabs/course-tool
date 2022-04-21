@@ -103,7 +103,6 @@ const CourseCombobox = ({ onSelectedItemsChange }) => {
           break;
         case useCombobox.stateChangeTypes.InputKeyDownEnter:
         case useCombobox.stateChangeTypes.ItemClick:
-        case useCombobox.stateChangeTypes.InputBlur:
           if (selectedItem) {
             setInputValue("");
             addSelectedItem(selectedItem);
@@ -152,7 +151,7 @@ const CourseCombobox = ({ onSelectedItemsChange }) => {
               <SearchIcon className="h-5 w-5" />
             </span>
             <input
-              className="flex-1 bg-transparent py-2 pl-7 text-xl text-grey-500 focus:outline-none dark:text-grey-200"
+              className="flex-1 bg-transparent py-2 pl-7 text-xl text-grey-500 focus:outline-none dark:text-grey-200 min-w-0"
               type="search"
               {...getInputProps(getDropdownProps({ preventKeyAction: isOpen }))}
               placeholder="Add a Course by Course ID/Name"

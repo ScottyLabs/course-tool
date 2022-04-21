@@ -26,8 +26,8 @@ const ScheduleSelection = ({ name, id, courses, active }) => {
               className="min-w-0 flex-1 px-2"
               value={
                 window.location.hostname +
-                "/schedule/share/" +
-                courses.join("/")
+                "/schedules/shared?courses=" +
+                courses.join(",")
               }
               readOnly={true}
             />

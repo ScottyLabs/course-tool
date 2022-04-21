@@ -176,6 +176,8 @@ export const userSlice = createSlice({
         courses: [],
       });
       state.schedules.active = state.schedules.saved.length - 1;
+      state.schedules.current = state.schedules.saved[state.schedules.active].courses;
+      state.schedules.selected = state.schedules.saved[state.schedules.active].courses;
     },
     createSharedSchedule: (state, action) => {
       state.schedules.saved.push({
@@ -183,6 +185,8 @@ export const userSlice = createSlice({
         courses: action.payload.courses,
       });
       state.schedules.active = state.schedules.saved.length - 1;
+      state.schedules.current = state.schedules.saved[state.schedules.active].courses;
+      state.schedules.selected = state.schedules.saved[state.schedules.active].courses;
     },
     createSchedule: (state) => {
       if (state.schedules.active === null) {
@@ -197,6 +201,8 @@ export const userSlice = createSlice({
         });
       }
       state.schedules.active = state.schedules.saved.length - 1;
+      state.schedules.current = state.schedules.saved[state.schedules.active].courses;
+      state.schedules.selected = state.schedules.saved[state.schedules.active].courses;
     },
     selectSchedule: (state, action) => {
       if (action.payload < 0) return;
@@ -217,6 +223,8 @@ export const userSlice = createSlice({
         } else if (state.schedules.active < 0) {
           state.schedules.active = 0;
         }
+        state.schedules.current = state.schedules.saved[state.schedules.active].courses;
+        state.schedules.selected = state.schedules.saved[state.schedules.active].courses;
       }
     },
     updateActiveScheduleName: (state, action) => {
