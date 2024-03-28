@@ -75,18 +75,18 @@ const Lecture = ({
 const Schedule = ({ scheduleInfo }: { scheduleInfo: Schedule }) => {
   let scheduleDivs;
 
-  if (scheduleInfo.lectures.length !== 0) {
-    scheduleDivs = scheduleInfo.lectures.map((lecture) => (
+  if (scheduleInfo.lectures?.length !== 0) {
+    scheduleDivs = scheduleInfo.lectures?.map((lecture) => (
       <Lecture
         key={lecture.name}
         lectureInfo={lecture}
-        sections={scheduleInfo.sections.filter(
+        sections={scheduleInfo.sections?.filter(
           (section) => section.lecture === lecture.name
         )}
       />
     ));
   } else {
-    scheduleDivs = scheduleInfo.sections.map((section) => (
+    scheduleDivs = scheduleInfo.sections?.map((section) => (
       <Lecture lectureInfo={section} sections={[]} key={section.name} />
     ));
   }
