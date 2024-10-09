@@ -26,6 +26,8 @@ export interface UserState {
   token: string | null;
   selectedSchool: string;
   selectedTags: string[];
+  selectedSemester: string;
+  selectedSessions: {};
 }
 
 const initialState: UserState = {
@@ -51,6 +53,8 @@ const initialState: UserState = {
   token: null,
   selectedSchool: "SCS",
   selectedTags: [],
+  selectedSemester: "",
+  selectedSessions: {},
 };
 
 export const userSlice = createSlice({
@@ -116,7 +120,13 @@ export const userSlice = createSlice({
     },
     setSelectedTags: (state, action: PayloadAction<string[]>) => {
       state.selectedTags = action.payload;
-    }
+    },
+    setSelectedSemester: (state, action: PayloadAction<string>) => {
+      state.selectedSemester = action.payload;
+    },
+    setSelectedSessions: (state, action: PayloadAction<{}>) => {
+      state.selectedSessions = action.payload
+    },
   },
 });
 
