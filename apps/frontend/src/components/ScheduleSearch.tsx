@@ -17,6 +17,8 @@ import {
 } from "~/app/userSchedules";
 import { fetchAllCourses, fetchCourseInfos } from "~/app/api/course";
 import { fetchFCEInfosByCourse } from "~/app/api/fce";
+import { userSlice } from "~/app/user";
+import { CAL_VIEW, SCHED_VIEW } from "~/app/constants";
 
 type selectedItem = {
   courseID: string;
@@ -251,6 +253,7 @@ const ScheduleSearch = () => {
   const dispatch = useAppDispatch();
   const savedSchedules = useAppSelector((state) => state.schedules.saved);
   const active = useAppSelector((state) => state.schedules.active);
+  const scheduleView = useAppSelector((state) => state.user.scheduleView);
 
   return (
     <div className="mb-6">
@@ -273,9 +276,24 @@ const ScheduleSearch = () => {
           </div>
         )}
 
+        <div className="mb-4">
+          <button
+            className={`px-4 py-2 mr-2 rounded-md ${scheduleView === SCHED_VIEW ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            onClick={() => dispatch(userSlice.actions.setScheduleView(SCHED_VIEW))}
+          >
+            Schedule View
+          </button>
+          <button
+            className={`px-4 py-2 ml-2 rounded-md ${scheduleView === CAL_VIEW ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            onClick={() => dispatch(userSlice.actions.setScheduleView(CAL_VIEW))}
+          >
+            Calendar View
+          </button>
+        </div>
+
         <CourseCombobox
           onSelectedItemsChange={(courseIDs) => {
-            void dispatch(fetchFCEInfosByCourse({ courseIDs }));
+            void dispatch(fetchFCEInfosByCourse({courseIDs}));
             void dispatch(fetchCourseInfos(courseIDs));
             dispatch(
               userSchedulesSlice.actions.setActiveScheduleCourses(courseIDs)

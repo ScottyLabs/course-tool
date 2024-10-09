@@ -28,6 +28,7 @@ export interface UserState {
   selectedTags: string[];
   selectedSemester: string;
   selectedSessions: {};
+  scheduleView: string;
 }
 
 const initialState: UserState = {
@@ -55,6 +56,7 @@ const initialState: UserState = {
   selectedTags: [],
   selectedSemester: "",
   selectedSessions: {},
+  scheduleView: "cal",
 };
 
 export const userSlice = createSlice({
@@ -126,6 +128,9 @@ export const userSlice = createSlice({
     },
     setSelectedSessions: (state, action: PayloadAction<{}>) => {
       state.selectedSessions = action.payload
+    },
+    setScheduleView: (state, action: PayloadAction<string>) => {
+      state.scheduleView = action.payload;
     },
   },
 });
